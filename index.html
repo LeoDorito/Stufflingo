@@ -264,10 +264,14 @@ body.no-cursor,body.no-cursor.down{cursor:auto}
 </aside>
 <script>
 document.addEventListener("dragstart",function(e){e.preventDefault()});
+function ckGet(k){try{var m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):null}catch(e){return null}}
+function ckSet(k,v){try{var e=encodeURIComponent(v);if(e.length<3800)document.cookie=k+"="+e+";max-age=31536000;path=/;SameSite=Lax"}catch(x){}}
+function stGet(k){var v=null;try{v=localStorage.getItem(k)}catch(e){}return v||ckGet(k)}
+function stSet(k,v){try{localStorage.setItem(k,v)}catch(e){}ckSet(k,v)}
 var AC=null,muted=false;
 var SET={sfx:true,music:true,mvol:40,vol:50,theme:"auto",text:"normal",motion:true,cursor:true,name:""};
-try{var ss=JSON.parse(localStorage.getItem("sl_set"));if(ss){for(var _k in SET)if(_k in ss)SET[_k]=ss[_k]}else if(localStorage.getItem("sl_mute")==="1")SET.sfx=false}catch(e){}
-function saveSet(){try{localStorage.setItem("sl_set",JSON.stringify(SET))}catch(e){}}
+try{var ss=JSON.parse(stGet("sl_set"));if(ss){for(var _k in SET)if(_k in ss)SET[_k]=ss[_k]}else if(stGet("sl_mute")==="1")SET.sfx=false}catch(e){}
+function saveSet(){try{stSet("sl_set",JSON.stringify(SET))}catch(e){}}
 function applySet(){var r=document.documentElement;if(SET.theme==="light"||SET.theme==="dark")r.setAttribute("data-theme",SET.theme);else r.removeAttribute("data-theme");
   r.style.fontSize=({small:"14px",normal:"16px",large:"19px"})[SET.text]||"16px";r.classList.toggle("no-motion",!SET.motion);document.body.classList.toggle("no-cursor",!SET.cursor);muted=!SET.sfx;if(window.musicSync)musicSync()}
 applySet();
@@ -356,11 +360,11 @@ window.musicSync=function(id){var ch=false;
 document.addEventListener("visibilitychange",function(){if(!AC||!MU.started)return;if(document.hidden)AC.suspend();else if(SET.music)AC.resume()});
 var $=function(id){return document.getElementById(id)};
 var st={done:0,xp:0};
-try{var sv=JSON.parse(localStorage.getItem("sl_prog"));if(sv&&typeof sv.done==="number")st=sv}catch(e){}
+try{var sv=JSON.parse(stGet("sl_prog"));if(sv&&typeof sv.done==="number")st=sv}catch(e){}
 if(typeof st.pc!=="number")st.pc=0;
 ["xh","hint","dbl"].forEach(function(k){if(typeof st[k]!=="number")st[k]=0});
 if(!st.own||typeof st.own!=="object")st.own={};if(typeof st.out!=="string")st.out="";
-function save(){try{localStorage.setItem("sl_prog",JSON.stringify(st))}catch(e){}}
+function save(){try{stSet("sl_prog",JSON.stringify(st))}catch(e){}}
 function px(p,c){var r="";p.forEach(function(row,y){for(var x=0;x<row.length;x++)if(row[x]=="X")r+="<rect x='"+x+"' y='"+y+"' width='1' height='1'/>"});
  return "data:image/svg+xml,"+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 "+p.length+"' shape-rendering='crispEdges' fill='"+c+"'>"+r+"</svg>")}
 var HP=[".XX.XX.","XXXXXXX","XXXXXXX",".XXXXX.","..XXX..","...X..."];
