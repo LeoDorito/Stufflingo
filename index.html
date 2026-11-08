@@ -165,7 +165,7 @@ body.no-cursor,body.no-cursor.down{cursor:auto}
 .dc.ok{background:#c9f29a;color:#2b2b3a}.dc.today{background:#ffb100;color:#2b2b3a;animation:bob .8s steps(2) infinite}.dc.d7{border-color:#a560ff}
 #dbtn{display:inline-flex;align-items:center;gap:6px}#dbtn img{width:20px;height:20px;image-rendering:pixelated}#dbtn.rdy{background:#ffb100;color:#2b2b3a;animation:bob .8s steps(2) infinite}
 .rail .shopbtn{position:relative}.shopbtn.alert::after{content:"!";position:absolute;top:-4px;right:-4px;width:22px;height:22px;background:#ff3b30;color:#fff;border:3px solid #000;font:12px/16px "Press Start 2P",monospace;text-align:center;box-sizing:border-box;animation:alb .8s steps(2) infinite;pointer-events:none}@keyframes alb{0%{transform:translateY(0)}50%{transform:translateY(-5px) scale(1.15)}100%{transform:translateY(0)}}@media (prefers-reduced-motion:reduce){.shopbtn.alert::after{animation:none}}
-.rail{overflow-y:auto}.rl.hot{color:#ff7a00}
+.rail{overflow-y:auto}.mtoast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--card);border:4px solid var(--line);padding:10px 14px;font-size:11px;z-index:99;pointer-events:none}#qmus{padding:6px 10px}.rl.hot{color:#ff7a00}
 .pftop{display:flex;align-items:center;gap:14px;margin-bottom:12px}.pftop .avt{width:96px;height:96px;flex:none;border:4px solid var(--line);background:var(--card);box-shadow:0 4px 0 var(--line)}
 .pftop .pn{font-size:.8rem;line-height:1.6;word-break:break-word}.pftop .pn span{display:block;font-size:.55rem;color:var(--muted)}
 .stg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
@@ -198,7 +198,7 @@ body.no-cursor,body.no-cursor.down{cursor:auto}
 </div>
 
 <div id="quiz" class="screen">
-  <div class="top"><button class="sbtn" id="quit">✕</button><div class="bar"><div id="fill"></div></div><div id="hearts"></div></div>
+  <div class="top"><button class="sbtn" id="quit">✕</button><div class="bar"><div id="fill"></div></div><button class="sbtn" id="qmus" aria-label="Change lesson music" title="Change lesson music">♪</button><div id="hearts"></div></div>
   <div id="tl" class="tl" style="display:none">TEST OUT: pass to jump ahead!</div>
   <img id="qpic" class="pic" alt="" style="display:none">
   <h2 id="q"></h2>
@@ -236,7 +236,7 @@ body.no-cursor,body.no-cursor.down{cursor:auto}
   <div class="mrow"><img id="smas" class="mas" alt=""><div id="sbub" class="bub"></div></div>
   <h3>Items</h3><div id="items"></div>
   <h3>Outfits</h3><div id="outfits"></div>
-  <h3>Lobby Music</h3><div id="tracks"></div>
+  <h3>Lobby Music</h3><div id="tracks"></div><h3>Lesson Music</h3><div id="ltracks"></div>
   <h3>Profile Pictures</h3><div id="avatars"></div>
 </aside>
 <aside class="shopbar" id="setbar" aria-label="Settings" aria-hidden="true">
@@ -386,9 +386,13 @@ function musicStart(){if(MU.started||!SET.music)return;try{if(!AC)AC=new(window.
   MU.mg=AC.createGain();MU.mg.gain.value=SET.mvol/100*.5;MU.mg.connect(AC.destination);MU.next=AC.currentTime+.1;MU.started=true;MU.tm=setInterval(mtick,100)}catch(e){}}
 var LOBBY=[{id:"chill",n:"Chill Vibes",d:"The relaxed starter loop.",p:0},{id:"sunny",n:"Sunny Day",d:"Bright and bouncy.",p:10},{id:"dreamy",n:"Dreamy Clouds",d:"Slow, soft and floaty.",p:20},{id:"retro",n:"Arcade Nights",d:"8-bit game-room energy.",p:30},{id:"night",n:"Midnight Drive",d:"Smooth late-night groove.",p:40},{id:"party",n:"Victory Party",d:"The big celebration beat.",p:50},{id:"phonk",n:"Goofy Phonk",d:"Cowbells, heavy 808s and pure chaos.",p:100}];
 function lobbyTrack(){var t=st.track||"chill";return (t==="chill"||st.own["t_"+t])&&TR[t]?t:"chill"}
-function pickTrack(id){if(id!=="quiz")return lobbyTrack();var l=id==="quiz"?(tmode>=0||(FL[cu]&&UN[FL[cu].u].t==="Final Boss")?["boss"]:QUIZ):MENU;
+var LESS=[{id:"mix",n:"Random Mix",d:"Shuffles Quiz Time and Funk Quiz.",p:0},{id:"quiz",n:"Quiz Time",d:"The classic thinking beat.",p:0},{id:"funk",n:"Funk Quiz",d:"Groovy bass for brainy moments.",p:0},{id:"sunny",n:"Sunny Study",d:"Bright and bouncy lessons.",p:20},{id:"retro",n:"Arcade Study",d:"8-bit lesson energy.",p:30},{id:"night",n:"Midnight Study",d:"Late-night focus groove.",p:40},{id:"party",n:"Party Lessons",d:"Celebrate every answer.",p:50},{id:"boss",n:"Boss Rush",d:"Intense. Every lesson is a boss fight.",p:60},{id:"phonk",n:"Goofy Phonk Lessons",d:"Cowbells while you learn slang.",p:100}];
+function lessOwn(t){return t.p===0||(st.own&&st.own["l_"+t.id])}
+function lessSel(){var t=LESS.filter(function(x){return x.id===st.lt})[0];return t&&lessOwn(t)&&(t.id==="mix"||TR[t.id])?t.id:"mix"}
+function pickTrack(id){if(id!=="quiz")return lobbyTrack();if(tmode<0&&!(FL[cu]&&UN[FL[cu].u].t==="Final Boss")&&lessSel()!=="mix")return lessSel();var l=id==="quiz"?(tmode>=0||(FL[cu]&&UN[FL[cu].u].t==="Final Boss")?["boss"]:QUIZ):MENU;
   var o=l.filter(function(x){return x!==MU.tr});return pk1(o.length?o:l)}
-window.musicSync=function(id){var ch=false;
+function qmusUpd(){var b=document.getElementById("qmus");if(!b)return;var boss=tmode>=0||(FL[cu]&&UN[FL[cu].u].t==="Final Boss");b.style.display=boss?"none":"";var t=LESS.filter(function(x){return x.id===lessSel()})[0];b.title="Music: "+t.n+" (tap to change)"}
+window.musicSync=function(id){if(id==="quiz")setTimeout(qmusUpd,0);var ch=false;
   if(id){var g=(id==="quiz"?"q":"m")+(id==="quiz"&&(tmode>=0||(FL[cu]&&UN[FL[cu].u].t==="Final Boss"))?"b":"");
     if(MU.group!==g||id==="quiz"){MU.group=g;MU.tr=pickTrack(id);ch=true}}
   if(!MU.started){if(SET.music&&MU.armed)musicStart();return}
@@ -789,8 +793,20 @@ function drawShop(){
     d.querySelector(".buy").onclick=function(){if(eq)return;if(own)useTrack(t);else buyTrack(t)};
     tc.appendChild(d);
   });
+  var lc=$("ltracks");lc.innerHTML="";
+  LESS.forEach(function(t){
+    var own=lessOwn(t),eq=lessSel()===t.id,d=document.createElement("div");d.className="item";
+    d.innerHTML='<img class="iic" alt="" src="'+NOTE+'"><div class="itx"><b>'+t.n+'</b><span>'+t.d+'</span>'+(t.id==="mix"?'':'<em><button class="sbtn pv" aria-label="Preview '+t.n+'">▶ Preview</button></em>')+'</div><button class="sbtn buy'+(eq?' on':(!own&&st.pc<t.p?' no':''))+'" aria-label="'+(own?'Use ':'Buy ')+t.n+'">'+(eq?'IN USE':own?'USE':'<img class="pcn" alt="" src="'+PCI+'"><span>'+t.p+'</span>')+'</button>';
+    var pv=d.querySelector(".pv");if(pv)pv.onclick=function(){previewTrack(t.id)};
+    d.querySelector(".buy").onclick=function(){if(eq)return;if(own)useLess(t);else buyLess(t)};
+    lc.appendChild(d);
+  });
   drawAvatars();
 }
+function useLess(t){st.lt=t.id;save();sfx("coin");say($("smas"),$("sbub"),"happy","Lessons will play: "+t.n+"!");drawShop()}
+function buyLess(t){
+  if(st.pc<t.p){sfx("bonk");say($("smas"),$("sbub"),"sad",pk1(BROKE));return}
+  st.pc-=t.p;if(!st.own)st.own={};st.own["l_"+t.id]=1;st.lt=t.id;save();sfx("win");hud();say($("smas"),$("sbub"),"excited","New lesson music: "+t.n+"! Study time!");drawShop()}
 var NOTE=px(["...XXXX",".XX...X",".X....X",".X....X","XXX..XXX","XXX..XXX"],"#a560ff"),pvT=0;
 function applyLobby(){MU.prev=null;clearTimeout(pvT);var l=document.getElementById("home").classList.contains("on")||document.getElementById("path").classList.contains("on");if(l&&MU.started){MU.tr=lobbyTrack();MU.step=0;MU.next=AC.currentTime+.1}}
 function useTrack(t){st.track=t.id;save();sfx("coin");applyLobby();say($("smas"),$("sbub"),"happy","Now playing: "+t.n+"!");drawShop()}
@@ -801,7 +817,7 @@ function previewTrack(id){
   if(!SET.music){sfx("bonk");say($("smas"),$("sbub"),"idle","Turn Music on in Settings first!");return}
   if(!MU.started)musicStart();if(!MU.started)return;
   MU.prev=id;MU.tr=id;MU.step=0;MU.next=AC.currentTime+.1;musicVol();clearTimeout(pvT);
-  pvT=setTimeout(function(){MU.prev=null;var inQ=document.getElementById("quiz").classList.contains("on");if(!inQ){MU.tr=shopOpen()?"shop":lobbyTrack();MU.step=0;MU.next=AC.currentTime+.1}},8000);
+  pvT=setTimeout(function(){MU.prev=null;var inQ=document.getElementById("quiz").classList.contains("on");if(!inQ){MU.tr=lobbyTrack();MU.step=0;MU.next=AC.currentTime+.1}},8000);
   say($("smas"),$("sbub"),"happy","Previewing for a few seconds...")}
 function buy(it){
   if(st.pc<it.p){sfx("bonk");say($("smas"),$("sbub"),"sad",pk1(BROKE));return}
@@ -824,8 +840,8 @@ function tapMas(im,bu){im.onclick=function(){tapC++;sfx(["boing","coin","boing"]
 tapMas($("pmas"),$("pbub"));tapMas($("gmas"),$("gbub"));tapMas($("smas"),$("sbub"));
 function panelMusic(t){if(MU.started&&SET.music&&document.getElementById("quiz").classList.contains("on")===false){MU.prev=null;MU.tr=t;MU.step=0;MU.next=AC.currentTime+.1}}
 function panelBack(t){if(MU.tr===t&&MU.started&&!MU.prev&&!document.getElementById("quiz").classList.contains("on")){MU.tr=lobbyTrack();MU.step=0;MU.next=AC.currentTime+.1}}
-function openShop(){closeSet();closeCr();closeCb();closeDaily();closePf();panelMusic("shop");document.body.classList.add("shopopen");$("shopbar").setAttribute("aria-hidden","false");$("shop1").setAttribute("aria-expanded","true");$("shimg1").src=SHA;drawShop();say($("smas"),$("sbub"),"idle",pk1(SHOPQ));$("shopbar").scrollTop=0}
-function closeShop(){panelBack("shop");document.body.classList.remove("shopopen");$("shopbar").setAttribute("aria-hidden","true");$("shop1").setAttribute("aria-expanded","false");$("shimg1").src=SHI;refreshMas()}
+function openShop(){closeSet();closeCr();closeCb();closeDaily();closePf();document.body.classList.add("shopopen");$("shopbar").setAttribute("aria-hidden","false");$("shop1").setAttribute("aria-expanded","true");$("shimg1").src=SHA;drawShop();say($("smas"),$("sbub"),"idle",pk1(SHOPQ));$("shopbar").scrollTop=0}
+function closeShop(){document.body.classList.remove("shopopen");$("shopbar").setAttribute("aria-hidden","true");$("shop1").setAttribute("aria-expanded","false");$("shimg1").src=SHI;refreshMas()}
 $("shimg1").src=SHI;document.body.classList.add("rail-on");
 $("shop1").onclick=function(){sfx("whoosh");if(shopOpen())closeShop();else openShop()};
 $("shop1").onmouseenter=function(){$("shimg1").src=SHA};
@@ -909,7 +925,7 @@ function yeBro(){var m=$("s_cmsg"),first=!st.yb;st.yb=1;
   while(lvOf(st.xp)<MAXLV)st.xp+=1000;
   if(!st.lvc||typeof st.lvc!=="object")st.lvc={};
   for(var l=2;l<=MAXLV;l++)grantLv(l);
-  AVT.forEach(function(x){st.own["a_"+x.id]=1});LOBBY.forEach(function(x){st.own["t_"+x.id]=1});st.own.tophat=1;
+  AVT.forEach(function(x){st.own["a_"+x.id]=1});LOBBY.forEach(function(x){st.own["t_"+x.id]=1});LESS.forEach(function(x){st.own["l_"+x.id]=1});st.own.tophat=1;
   var ob=Math.max(st.best||0,st.streak||0);Object.keys(DMS).forEach(function(d){if(+d>ob)dApply(DMS[d])});
   st.streak=Math.max(st.streak||0,100);st.best=Math.max(st.best||0,100);st.last=todayKey();
   if(first){st.pc+=99999;["hint","dbl","xh","fz"].forEach(function(q){st[q]=(st[q]||0)+50})}
@@ -932,6 +948,10 @@ $("s_rp").onclick=function(){var b=this;
   clearTimeout(rpT);b.classList.remove("arm");b.textContent="Reset";
   st={done:0,xp:0,pc:0,xh:0,hint:0,dbl:0,own:{},out:""};save();sfx("bonk");closePanels();drawPath();refreshMas();
 };
+$("qmus").onclick=function(){var o=LESS.filter(lessOwn),k=0;o.forEach(function(x,j){if(x.id===lessSel())k=j});var n=o[(k+1)%o.length];st.lt=n.id;save();sfx("coin");qmusUpd();
+  if(MU.started&&SET.music){MU.prev=null;MU.tr=pickTrack("quiz");MU.step=0;MU.next=AC.currentTime+.1}
+  var b=$("qmus");b.textContent="♪";b.title="Music: "+n.n;var f=$("fbub");if(window.say&&$("qmas")){}
+  var tt=document.createElement("div");tt.className="mtoast";tt.textContent="♪ "+n.n;document.body.appendChild(tt);setTimeout(function(){tt.remove()},1400)};
 $("hintbtn").onclick=function(){
   if(done||st.hint<1)return;var q=QS[i],bs=$("opts").children,w=[];
   for(var k=0;k<bs.length;k++)if(k!==q[2]&&!bs[k].disabled)w.push(k);
