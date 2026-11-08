@@ -910,9 +910,11 @@ function yeBro(){var m=$("s_cmsg"),first=!st.yb;st.yb=1;
   if(!st.lvc||typeof st.lvc!=="object")st.lvc={};
   for(var l=2;l<=MAXLV;l++)grantLv(l);
   AVT.forEach(function(x){st.own["a_"+x.id]=1});LOBBY.forEach(function(x){st.own["t_"+x.id]=1});st.own.tophat=1;
+  var ob=Math.max(st.best||0,st.streak||0);Object.keys(DMS).forEach(function(d){if(+d>ob)dApply(DMS[d])});
+  st.streak=Math.max(st.streak||0,100);st.best=Math.max(st.best||0,100);st.last=todayKey();
   if(first){st.pc+=99999;["hint","dbl","xh","fz"].forEach(function(q){st[q]=(st[q]||0)+50})}
   save();hud();drawBook(false);drawPath();if(typeof drawShop==="function")drawShop();sfx("lvl");
-  m.style.color="var(--gd)";m.textContent=first?"YEBRO! Everything unlocked: all units, codes, level rewards, pictures, tracks, outfits + 99,999 pinecones and 50 of every item.":"YeBro again: everything is still unlocked.";
+  m.style.color="var(--gd)";m.textContent=first?"YEBRO! Everything unlocked: all units, codes, level rewards, 100-day streak with every daily milestone, pictures, tracks, outfits + 99,999 pinecones and 50 of every item.":"YeBro again: everything is still unlocked.";
   $("s_code").value="";say($("bmas"),$("bbub"),"excited","YE BRO!!! You got EVERYTHING!")}
 function redeem(){var raw=$("s_code").value.trim(),k=raw.toLowerCase(),m=$("s_cmsg"),c=CODES[k];
   if(!raw){m.textContent="Type a code first.";return}
