@@ -903,8 +903,20 @@ function drawBook(anim,stampKey){var b=$("s_book"),L=learned();b.innerHTML="";
     if(nw){bt.classList.add("stampin");bt.style.animationDelay=(fresh*.45)+"s";(function(d){setTimeout(function(){sfx("stamp")},d*450+100)})(fresh);fresh++;if(st.cbSeen.indexOf(c[0])<0)st.cbSeen.push(c[0])}
     bt.onclick=function(){$("s_code").value=c[0];$("s_cmsg").style.color="var(--muted)";$("s_cmsg").textContent=used?"Already redeemed.":"Reward: "+rwText(c[1])+". Tap Redeem!";sfx("click")};b.appendChild(bt)});
   if(fresh)save()}
+function yeBro(){var m=$("s_cmsg"),first=!st.yb;st.yb=1;
+  st.done=FL.length;if(!st.codes||typeof st.codes!=="object")st.codes={};if(!st.known)st.known={};if(!st.own)st.own={};
+  Object.keys(CODES).forEach(function(k){if(st.codes[k])return;var c=CODES[k];st.codes[k]=1;st.known[k]=1;if(c.pc)st.pc+=c.pc;if(c.xp)st.xp+=c.xp;["hint","dbl","xh"].forEach(function(q){if(c[q])st[q]=(st[q]||0)+c[q]})});
+  while(lvOf(st.xp)<MAXLV)st.xp+=1000;
+  if(!st.lvc||typeof st.lvc!=="object")st.lvc={};
+  for(var l=2;l<=MAXLV;l++)grantLv(l);
+  AVT.forEach(function(x){st.own["a_"+x.id]=1});LOBBY.forEach(function(x){st.own["t_"+x.id]=1});st.own.tophat=1;
+  if(first){st.pc+=99999;["hint","dbl","xh","fz"].forEach(function(q){st[q]=(st[q]||0)+50})}
+  save();hud();drawBook(false);drawPath();if(typeof drawShop==="function")drawShop();sfx("lvl");
+  m.style.color="var(--gd)";m.textContent=first?"YEBRO! Everything unlocked: all units, codes, level rewards, pictures, tracks, outfits + 99,999 pinecones and 50 of every item.":"YeBro again: everything is still unlocked.";
+  $("s_code").value="";say($("bmas"),$("bbub"),"excited","YE BRO!!! You got EVERYTHING!")}
 function redeem(){var raw=$("s_code").value.trim(),k=raw.toLowerCase(),m=$("s_cmsg"),c=CODES[k];
   if(!raw){m.textContent="Type a code first.";return}
+  if(k==="yebro"){yeBro();return}
   if(!c){sfx("bonk");m.style.color="var(--red)";m.textContent="That code doesn’t work.";say($("bmas"),$("bbub"),"sad","Hmm, that code isn’t right...");return}
   if(!st.codes||typeof st.codes!=="object")st.codes={};
   if(st.codes[k]){sfx("bonk");m.style.color="var(--red)";m.textContent="You already used that code.";say($("bmas"),$("bbub"),"idle","You already used that one, bro!");return}
