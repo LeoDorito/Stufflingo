@@ -910,9 +910,10 @@ function equipOutfit(o){st.out=o.id;save();sfx("coin");say($("smas"),$("sbub"),"
 function tip(){return pk1(SET.name?TIPS.concat(["Welcome back, "+SET.name+"!","Let’s go, "+SET.name+"!","You’ve got this, "+SET.name+"!"]):TIPS)}
 function refreshMas(){say($("pmas"),$("pbub"),"idle",$("pbub").textContent||tip())}
 var TAPQ=["Hey, that tickles!","Boing!","You poked an apple!","Stop it, I’m ripe!","Again, again!","I’m a-peel-ing, right?","Careful, I might juice!","Whee!","Tap tap! Hi there!","Don’t bruise me, bro!","Keep going, you’re doing great!","An apple a day keeps the boredom away!","Did you hear? Brainrot is fun!","I’m doing push-ups. Well, bounce-ups.","Ooh, do that again!"],TAPN=["Okay okay, I’m dizzy now...","That’s a lot of taps!","You’re really into this, huh?"],tapC=0;
+var PTAPQ=["Apple? I don't see an apple here.","Shh! Don't tell anyone I'm a pear.","Definitely a real apple. Totally.","You've pear-fectly poked me!","That's a-pear-ently my belly.","We make a great pear, you and me.","I'm not fake, I'm just... differently green.","Pear-don me, that tickled!","Bro, I'm 100% apple. Trust me.","Don't look at the stem too hard.","Who's Apple Bro? Never heard of him.","I'm the pear-fect study buddy.","Sus? Me? Never.","Green is my aura, bro.","Poke me again and I'll turn into a pear-ade!","Bounce check! Still green.","The pear-ty has arrived!","I put the 'pear' in 'prepare for the quiz'!"],PTAPN=["Okay okay, I'm getting pear-sick...","So many taps, I'm getting bruised!","Alright, you caught me. Pear Bro for life."];
 function tapMas(im,bu){im.onclick=function(){tapC++;sfx(["boing","coin","boing"][tapC%3]);var k=tapC%7===0?"excited":(tapC%2?"happy":"idle");
-  var t=tapC%10===0?pk1(TAPN):pk1(TAPQ.filter(function(x){return x!==bu.textContent}));
-  if(SET.name&&tapC%5===0)t="Hi "+SET.name+"!";
+  var pb=st.out==="pearbro",QQ=pb?PTAPQ:TAPQ,NN=pb?PTAPN:TAPN;var t=tapC%10===0?pk1(NN):pk1(QQ.filter(function(x){return x!==bu.textContent}));
+  if(SET.name&&tapC%5===0)t=pb?"Hi "+SET.name+"! Psst, I'm totally an apple.":"Hi "+SET.name+"!";
   say(im,bu,k,t);im.classList.remove("hop");void im.offsetWidth;im.classList.add("hop")}}
 tapMas($("pmas"),$("pbub"));tapMas($("gmas"),$("gbub"));tapMas($("smas"),$("sbub"));
 function panelMusic(t){if(MU.started&&SET.music&&document.getElementById("quiz").classList.contains("on")===false){MU.prev=null;MU.tr=t;MU.step=0;MU.next=AC.currentTime+.1}}
